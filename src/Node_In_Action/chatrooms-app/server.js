@@ -8,7 +8,7 @@ var cache = {};
 // returns 404 page
 function send404(response) {
     response.writeHead(404, {'Content-Type': 'text/plain'});
-    response.write('Error 494: resource not found');
+    response.write('Error 404: resource not found');
     response.end();
 }
 
@@ -16,7 +16,7 @@ function send404(response) {
 function sendFile(response, filePath, fileContents) {
     response.writeHead(
         200,
-        {"content-type": mime.lookup(path.basename(filePath))}
+        {"content-type": mime.getType(path.basename(filePath))}
     );
     response.end(fileContents);
 }
@@ -24,7 +24,7 @@ function sendFile(response, filePath, fileContents) {
 // if file exists > serve from cache
 // else return 404
 function serveStatic(response, cache, absPath) {
-    if(cache[abspath]){
+    if(cache[absPath]){
         sendFile(response, absPath, cache[absPath]);
     } else {
         fs.exists(absPath, function(exists) {
@@ -43,3 +43,21 @@ function serveStatic(response, cache, absPath) {
         });
     }
 }
+
+
+// creates http server
+var server = http.createServer(function(request, response) {
+    var filePath = false;
+
+    if (request.url == '/' ) {
+        filePath = 'public/index.html';
+    } else {
+        filePath = 'public' + request.url;
+    }
+    var absPath = './' + filePath;
+    serveStatic(response, cache, absPath);
+});
+
+server.listen(3000, function() {
+    console.log("Server listining on port 3000.");
+});
