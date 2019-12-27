@@ -65,24 +65,24 @@ function joinRoom(socket, room) {
     socket.broadcast.to(room).emit('message', {
         text: nickNames[socket.id] + 'has joined' + room + '.'
     });
-}
 
-// define users in same room as user
-var usersInRoom = io.sockets.clients(room);
+    // define users in same room as user
+    var usersInRoom = io.sockets.clients(room);
 
-if (usersInRoom.length > 1) {
-    // lists users in room, upon new entry
-    var usersInRoomSummary = 'Users currently in ' + room + ': ';
-    for (var index in usersInRoom) {
-        if (userSocketId != socket.id) {
-            if(index > 0) {
-                usersInRoomSummary += ', ';
+    // if users in room is positive
+    if (usersInRoom.length > 1) {
+        // list users in room, upon new entry
+        var usersInRoomSummary = 'Users currently in ' + room + ': ';
+        for (var index in usersInRoom) {
+            if (userSocketId != socket.id) {
+                if(index > 0) {
+                    usersInRoomSummary += ', ';
+                }
+                usersInRoomSummary += nickNames[userSocket.Id];
             }
-            usersInRoomSummary += nickNames[userSocket.Id];
         }
+        usersInRoomSummary += '.';
+        // emits users in room to new user
+        socket.emit('message', {text: usersInRoomSummary});
     }
-    usersInRoomSummary += '.';
-    // emits users in room to new user
-    socket.emit('message', {text: usersInRoomSummary});
 }
-
