@@ -86,3 +86,6 @@ function joinRoom(socket, room) {
         socket.emit('message', {text: usersInRoomSummary});
     }
 }
+
+
+
