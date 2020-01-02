@@ -9,22 +9,16 @@ http.createServer(function (req, res) {
 // pulls titles ..passes control to getTemplates
 function getTtitles(res) {
     fs.readFile('./titles.json', function (err, data) {
-        if(err) {
-            hadError(err, res);
-        } else {
-            getTemplate(JSON.parse(data.toString()), res);
-        }
+        if(err) return hadError(err, res)
+        getTemplate(JSON.parse(data.toString()), res);
     })
 }
 
 // reads template file ... passes control to formatHtml
 function getTemplate(titles, res) {
     fs.readFile('./template.html', function (err, data) {
-        if(err) {
-            hadError(err, res);
-        } else {
-            formatHtml(titles, data.toString(), res);
-        }
+        if(err) return hadError(err, res)
+        formatHtml(titles, data.toString(), res);
     })
 }
 
@@ -41,6 +35,47 @@ function hadError(err, res) {
     res.end('Server Error');
 }
 
+
+// intermediate functions example
+// // receives client request ..control is passed to getTitles
+// http.createServer(function (req, res) {
+//     getTitles(res);
+// }).listen(8000, "127.0.0.1");
+
+// // pulls titles ..passes control to getTemplates
+// function getTtitles(res) {
+//     fs.readFile('./titles.json', function (err, data) {
+//         if(err) {
+//             hadError(err, res);
+//         } else {
+//             getTemplate(JSON.parse(data.toString()), res);
+//         }
+//     })
+// }
+
+// // reads template file ... passes control to formatHtml
+// function getTemplate(titles, res) {
+//     fs.readFile('./template.html', function (err, data) {
+//         if(err) {
+//             hadError(err, res);
+//         } else {
+//             formatHtml(titles, data.toString(), res);
+//         }
+//     })
+// }
+
+// // takes titles and template, renders response back to client
+// function formatHtml (titles, tmpl, res) {
+//     var html = tmpl.replace('%', titles.join('</li><li>'));
+//     res.writeHead(200, {'Content-Type': 'text/html'});
+//     res.end(html);
+// }
+
+// // handles returning err res to client
+// function hadError(err, res) {
+//     console.error(err);
+//     res.end('Server Error');
+// }
 
 // nested callbacks example
 // // create http server ..use callback to define response logic
