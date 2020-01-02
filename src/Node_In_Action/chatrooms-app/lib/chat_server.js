@@ -87,5 +87,58 @@ function joinRoom(socket, room) {
     }
 }
 
+// changes userName
+function handleNameChangeAttempts(socket, nickNames, namesUsed) {
 
+    // adds listener for 'nameAttempt' events
+    socket.on('nameAttempt', function(name) {
+
+        // don't allow names to begin with guest
+        if(name.indexOf('Guest')  == 0) {
+            socket.emit('nameResult', {
+                success: false,
+                message: 'Names cannot begin with "guest".'
+            });
+        } else {
+        // if !registered, register name    
+            if(namesUsed.indexOf(name)  == -1) {
+                var previousName = nickNames[socket.id];
+                var previousNameIndex = namesUsed.indexOf(previousName);
+                namesUsed.push(name);
+                nickNames[socket.id] = name;
+                delete namesUsed[previousNameIndex];
+                socket.emit('nameResult', {
+                    success: true,
+                    name: name
+                });
+                socket.broadcast.to(currentRoom[socket,id]).emit('message', {
+                    text: previousName + ' is now known as ' + name + '.'
+                });
+            } else {
+                // return err if name already in use
+                socket.emit('nameResult', {
+                    success: false,
+                    message: 'That name is already in use.'
+                });
+            }
+        }
+    });
+}
+
+// sends chat messages
+function handleMessageBroadcasting(socket) {
+    socket.on('message', function(message) {
+        socket.broadcast.to(message.room).emit('message', {
+            text: nickNames[socket.id] + ': ' + message.text
+        });
+    });
+}
+
+// changes rooms
+function handleRoomJoining(socket) {
+    socket.on('join', function(room) {
+        socket.leave(currentRoom[socket.id]);
+        joinRoom(socket, room.newRoom);
+    });
+}
 
