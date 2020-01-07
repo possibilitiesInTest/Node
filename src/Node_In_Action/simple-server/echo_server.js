@@ -93,3 +93,74 @@ client.on('data', function(data) {
     }
     channel.emit('broadcast', id, data);
 });
+
+// returns array of listeners for given event type
+channel.on('join', function(id, client) {
+    var welcome = "Welcome!\n" + 'Guests online: ' + this.listeners('broadcast').length;
+    client.write(welcome + "\n");
+});
+
+// sets max listeners
+channel.setMaxListeners(50);
+
+// err handling example
+var events = require('events');
+var myEmitter = new events.EventEmitter();
+
+myEmitter.on('error', function(err) {
+    console.log('ERROR: ' + err.message);
+});
+
+myEmitter.emit('error', new Error('Something is wrong.'));
+
+process.on('uncaughtException', function(err) {
+    console.error(err.stack);
+    process.exit(1);
+});
+
+// file watcher example w. eventEmitter
+function Watcher(watchDir, processedDir) {
+    this.watchDir = watchDir;
+    this.processedDir = processedDir;
+}
+
+var events = require('events'),
+ util = require('util');
+
+util.inherits(Watcher, events.EventEmitter);
+
+Watcher.prototype = new events.EventEmitter();
+
+var fs = require('fs')
+   , watchDir = './watch'
+   , processedDir = './done';
+
+Watcher.prototype.watch = function() {
+    var watcher = this;
+    fs.readdor(this.watchDir, function(err, files) {
+        if (err) throw err;
+        for(var index in files) {
+            watcher.emit('progress', files[index]);
+        }
+    });
+}
+
+Watcher.prototype.start = function() {
+    var watcher = this;
+    fs.watchFile(watchDir, function() {
+        watcher.watch();
+    });
+}
+
+var watcher = new Watcher(watchDir, porocessedDir);
+
+watcher.on('process', function process(file) {
+    var watchFile = this.watchDir + '/' + file;
+    var processedFile = this.processedDir + '/' + file.toLowerCase();
+
+    fs.rename(watchFile, processedFile, function(err) {
+        if(err) throw err;
+    });
+});
+
+watcher.start();
