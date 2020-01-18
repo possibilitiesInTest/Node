@@ -2,7 +2,7 @@ var http = require("http");
 var path = require("path");
 var express = require("express");
 var logger = require("morgan");
-var bodyparser = require("body-parser");
+var bodyParser = require("body-parser");
 
 var app = express();
 
@@ -37,7 +37,7 @@ app.post("/new-entry", function(request, response) {
     entries.push({
         title: request.body.title,
         content: request.body.body,
-        published: new Date();
+        published: new Date()
     });
     // redirect to home
     response.redirect("/");
